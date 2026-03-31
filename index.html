@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="id" x-data="{ dark: false, mobileMenu: false, activeSection: 'home' }" :class="{ 'dark': dark }">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Marsel Yogi — Web Developer</title>
+
+  <!-- Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Alpine.js -->
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: { jakarta: ['"Plus Jakarta Sans"', 'sans-serif'] },
+          colors: {
+            mint: {
+              50:  '#f0fdf4',
+              100: '#dcfce7',
+              200: '#bbf7d0',
+              300: '#86efac',
+              400: '#4ade80',
+              500: '#22c55e',
+              600: '#16a34a',
+              700: '#15803d',
+              800: '#166534',
+              900: '#14532d',
+            },
+          },
+          keyframes: {
+            fadeUp: {
+              '0%':   { opacity: '0', transform: 'translateY(32px)' },
+              '100%': { opacity: '1', transform: 'translateY(0)' },
+            },
+            blink: {
+              '0%, 100%': { opacity: '1' },
+              '50%':       { opacity: '0' },
+            },
+            float: {
+              '0%, 100%': { transform: 'translateY(0px)' },
+              '50%':       { transform: 'translateY(-12px)' },
+            },
+            shimmer: {
+              '0%':   { backgroundPosition: '-200% 0' },
+              '100%': { backgroundPosition: '200% 0' },
+            },
+          },
+          animation: {
+            'fade-up':      'fadeUp 0.7s ease forwards',
+            'fade-up-d1':   'fadeUp 0.7s 0.15s ease forwards',
+            'fade-up-d2':   'fadeUp 0.7s 0.30s ease forwards',
+            'fade-up-d3':   'fadeUp 0.7s 0.45s ease forwards',
+            blink:          'blink 1s step-end infinite',
+            float:          'float 4s ease-in-out infinite',
+            shimmer:        'shimmer 3s linear infinite',
+          },
+        },
+      },
+    }
+  </script>
+
+  <style>
+    * { font-family: 'Plus Jakarta Sans', sans-serif; }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #22c55e; border-radius: 9999px; }
+
+    /* Noise texture overlay */
+    .noise::after {
+      content: '';
+      position: absolute; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none; opacity: .4; mix-blend-mode: overlay;
+    }
+
+    /* Gradient mesh bg */
+    .mesh-bg {
+      background:
+        radial-gradient(ellipse 60% 50% at 20% 30%, rgba(34,197,94,.18) 0%, transparent 70%),
+        radial-gradient(ellipse 40% 60% at 80% 70%, rgba(134,239,172,.13) 0%, transparent 70%);
+    }
+    .dark .mesh-bg {
+      background:
+        radial-gradient(ellipse 60% 50% at 20% 30%, rgba(34,197,94,.12) 0%, transparent 70%),
+        radial-gradient(ellipse 40% 60% at 80% 70%, rgba(22,163,74,.10) 0%, transparent 70%);
+    }
+
+    /* Shimmer text */
+    .shimmer-text {
+      background: linear-gradient(90deg, #22c55e 0%, #86efac 40%, #4ade80 60%, #22c55e 100%);
+      background-size: 200% auto;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: shimmer 3s linear infinite;
+    }
+
+    /* Card hover */
+    .portfolio-card { transition: transform .3s ease, box-shadow .3s ease; }
+    .portfolio-card:hover { transform: translateY(-6px); }
+
+    /* Dot grid */
+    .dot-grid {
+      background-image: radial-gradient(circle, rgba(34,197,94,.25) 1px, transparent 1px);
+      background-size: 28px 28px;
+    }
+    .dark .dot-grid {
+      background-image: radial-gradient(circle, rgba(34,197,94,.18) 1px, transparent 1px);
+    }
+
+    /* Topbar */
+    .topbar-glow { box-shadow: 0 1px 0 rgba(34,197,94,.25); }
+    .dark .topbar-glow { box-shadow: 0 1px 0 rgba(34,197,94,.2); }
+
+    /* Tag pill */
+    .tag { display: inline-block; padding: .2rem .65rem; border-radius: 9999px; font-size: .72rem; font-weight: 600; letter-spacing: .03em; }
+
+    /* Nav link underline */
+    .nav-link { position: relative; }
+    .nav-link::after {
+      content: ''; position: absolute; bottom: -2px; left: 0; width: 0; height: 2px;
+      background: #22c55e; border-radius: 9999px; transition: width .25s ease;
+    }
+    .nav-link:hover::after, .nav-link.active::after { width: 100%; }
+
+    /* Floating badge */
+    .badge-float { animation: float 4s ease-in-out infinite; }
+
+    /* Skill bar */
+    .skill-bar-inner { transition: width 1.2s cubic-bezier(.4,0,.2,1); }
+
+    /* Opacity helpers for animation reset */
+    [data-aos] { opacity: 0; }
+  </style>
+</head>
+
+<body class="bg-white dark:bg-gray-950 text-gray-800 dark:text-gray-100 transition-colors duration-300 overflow-x-hidden">
+
+  <!-- ░░ TOPBAR ░░ -->
+  <div class="topbar-glow bg-mint-50 dark:bg-gray-900 text-sm py-2 px-6 flex items-center justify-between transition-colors duration-300">
+    <div class="flex items-center gap-2 text-mint-700 dark:text-mint-400 font-semibold">
+      <i class="fa-solid fa-circle-bolt text-mint-500 animate-pulse"></i>
+      <span>Tersedia untuk proyek freelance &amp; full-time!</span>
+    </div>
+    <div class="hidden sm:flex items-center gap-4 text-gray-500 dark:text-gray-400">
+      <a href="/cdn-cgi/l/email-protection#dfb2beadacbab39fbaa7beb2afb3baf1bcb0b2" class="hover:text-mint-600 dark:hover:text-mint-400 transition-colors flex items-center gap-1.5">
+        <i class="fa-solid fa-envelope text-xs"></i> <span class="__cf_email__" data-cfemail="98f5f9eaf1f7ecf0fdf6abd8fff5f9f1f4b6fbf7f5">[email&#160;protected]</span>
+      </a>
+      <span class="w-px h-4 bg-gray-300 dark:bg-gray-700"></span>
+      <a href="tel:+6281234567890" class="hover:text-mint-600 dark:hover:text-mint-400 transition-colors flex items-center gap-1.5">
+        <i class="fa-solid fa-phone text-xs"></i> +62 852-4526-4720
+      </a>
+    </div>
+  </div>
+
+  <!-- ░░ NAVBAR ░░ -->
+  <nav x-data="{ scrolled: false }" @scroll.window="scrolled = window.scrollY > 40"
+       :class="scrolled ? 'backdrop-blur-xl bg-white/80 dark:bg-gray-950/80 shadow-md shadow-mint-500/5' : 'bg-white dark:bg-gray-950'"
+       class="sticky top-0 z-50 px-6 md:px-12 py-4 flex items-center justify-between transition-all duration-300">
+
+    <!-- Logo -->
+    <a href="#home" class="flex items-center gap-2 group">
+      <span class="w-9 h-9 rounded-xl bg-mint-500 flex items-center justify-center shadow-lg shadow-mint-500/30 group-hover:shadow-mint-500/50 transition-shadow">
+        <span class="text-white font-black text-lg leading-none">M</span>
+      </span>
+      <span class="font-extrabold text-lg tracking-tight">
+        Marsel<span class="text-mint-500"></span>
+      </span>
+    </a>
+
+    <!-- Desktop Links -->
+    <div class="hidden md:flex items-center gap-8">
+      <a href="#home"      class="nav-link font-semibold text-sm hover:text-mint-600 dark:hover:text-mint-400 transition-colors"><i class="fa-solid fa-house mr-1.5 text-mint-500 text-xs"></i>Home</a>
+      <a href="#about"     class="nav-link font-semibold text-sm hover:text-mint-600 dark:hover:text-mint-400 transition-colors"><i class="fa-solid fa-user mr-1.5 text-mint-500 text-xs"></i>About</a>
+      <a href="#portfolio" class="nav-link font-semibold text-sm hover:text-mint-600 dark:hover:text-mint-400 transition-colors"><i class="fa-solid fa-briefcase mr-1.5 text-mint-500 text-xs"></i>Portfolio</a>
+      <a href="#contact"   class="nav-link font-semibold text-sm hover:text-mint-600 dark:hover:text-mint-400 transition-colors"><i class="fa-solid fa-paper-plane mr-1.5 text-mint-500 text-xs"></i>Kontak</a>
+    </div>
+
+    <!-- Actions -->
+    <div class="flex items-center gap-3">
+      <!-- Theme toggle -->
+      <button @click="dark = !dark"
+              class="w-9 h-9 rounded-xl border border-gray-200 dark:border-gray-700 flex items-center justify-center hover:bg-mint-50 dark:hover:bg-gray-800 hover:border-mint-400 transition-all text-gray-500 dark:text-gray-400 hover:text-mint-600 dark:hover:text-mint-400"
+              :title="dark ? 'Mode Terang' : 'Mode Gelap'">
+        <i :class="dark ? 'fa-solid fa-sun' : 'fa-solid fa-moon'" class="text-sm"></i>
+      </button>
+
+      <!-- Hire Me -->
+      <a href="#contact" class="hidden sm:flex items-center gap-2 bg-mint-500 hover:bg-mint-600 text-white text-sm font-bold px-4 py-2 rounded-xl shadow-lg shadow-mint-500/25 hover:shadow-mint-500/40 transition-all">
+        <i class="fa-solid fa-handshake-angle"></i> Hire Me
+      </a>
+
+      <!-- Mobile hamburger -->
+      <button @click="mobileMenu = !mobileMenu" class="md:hidden w-9 h-9 rounded-xl border border-gray-200 dark:border-gray-700 flex items-center justify-center text-gray-500 dark:text-gray-400">
+        <i :class="mobileMenu ? 'fa-solid fa-xmark' : 'fa-solid fa-bars'" class="text-sm"></i>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Mobile Menu -->
+  <div x-show="mobileMenu" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 -translate-y-2" x-transition:enter-end="opacity-100 translate-y-0"
+       x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+       class="md:hidden fixed top-[105px] left-4 right-4 z-40 bg-white dark:bg-gray-900 rounded-2xl shadow-2xl border border-gray-100 dark:border-gray-800 p-4 flex flex-col gap-1">
+    <a href="#home"      @click="mobileMenu=false" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-mint-50 dark:hover:bg-gray-800 font-semibold text-sm transition-colors"><i class="fa-solid fa-house w-5 text-mint-500"></i>Home</a>
+    <a href="#about"     @click="mobileMenu=false" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-mint-50 dark:hover:bg-gray-800 font-semibold text-sm transition-colors"><i class="fa-solid fa-user w-5 text-mint-500"></i>About</a>
+    <a href="#portfolio" @click="mobileMenu=false" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-mint-50 dark:hover:bg-gray-800 font-semibold text-sm transition-colors"><i class="fa-solid fa-briefcase w-5 text-mint-500"></i>Portfolio</a>
+    <a href="#contact"   @click="mobileMenu=false" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-mint-50 dark:hover:bg-gray-800 font-semibold text-sm transition-colors"><i class="fa-solid fa-paper-plane w-5 text-mint-500"></i>Kontak</a>
+    <div class="mt-2 pt-2 border-t border-gray-100 dark:border-gray-800">
+      <a href="#contact" class="flex items-center justify-center gap-2 bg-mint-500 hover:bg-mint-600 text-white text-sm font-bold px-4 py-3 rounded-xl shadow-lg shadow-mint-500/25 transition-all">
+        <i class="fa-solid fa-handshake-angle"></i> Hire Me
+      </a>
+    </div>
+  </div>
+
+  <!-- ░░ HERO / BANNER ░░ -->
+  <section id="home" class="relative min-h-[calc(100vh-105px)] flex items-center overflow-hidden noise mesh-bg">
+    <!-- Dot grid bg -->
+    <div class="absolute inset-0 dot-grid opacity-60 dark:opacity-40"></div>
+
+    <!-- Decorative circles -->
+    <div class="absolute -top-24 -right-24 w-96 h-96 rounded-full bg-mint-200/30 dark:bg-mint-800/10 blur-3xl"></div>
+    <div class="absolute -bottom-32 -left-16 w-80 h-80 rounded-full bg-mint-300/20 dark:bg-mint-700/10 blur-3xl"></div>
+
+    <div class="relative z-10 w-full max-w-7xl mx-auto px-6 md:px-12 py-20 grid md:grid-cols-2 gap-12 items-center">
+
+      <!-- Left: Text -->
+      <div>
+        <!-- Badge -->
+        <div class="inline-flex items-center gap-2 bg-mint-50 dark:bg-mint-900/30 border border-mint-200 dark:border-mint-800 text-mint-700 dark:text-mint-400 text-xs font-bold px-4 py-1.5 rounded-full mb-6 opacity-0 animate-fade-up">
+          <span class="w-1.5 h-1.5 rounded-full bg-mint-500 animate-pulse"></span>
+          Open to Work · Indonesia 🇮🇩
+        </div>
+
+        <h1 class="text-5xl md:text-6xl font-black leading-[1.1] tracking-tight mb-4 opacity-0 animate-fade-up-d1">
+          Hi, Saya<br/>
+          <span class="shimmer-text">Marsel Yogi</span>
+        </h1>
+
+        <div class="text-xl md:text-2xl font-bold text-gray-500 dark:text-gray-400 mb-6 opacity-0 animate-fade-up-d2">
+          <span x-data="{
+            texts: ['Web Developer', 'Frontend Specialist', 'UI/UX Enthusiast', 'IT Network'],
+            current: 0,
+            display: '',
+            init() {
+              this.typeNext();
+            },
+            async typeNext() {
+              while(true) {
+                const t = this.texts[this.current];
+                for(let i = 0; i <= t.length; i++) {
+                  this.display = t.slice(0, i);
+                  await new Promise(r => setTimeout(r, 80));
+                }
+                await new Promise(r => setTimeout(r, 1400));
+                for(let i = t.length; i >= 0; i--) {
+                  this.display = t.slice(0, i);
+                  await new Promise(r => setTimeout(r, 40));
+                }
+                this.current = (this.current + 1) % this.texts.length;
+              }
+            }
+          }" x-init="init()" class="text-mint-600 dark:text-mint-400">
+            <span x-text="display"></span><span class="animate-blink border-r-2 border-mint-500 ml-0.5">&nbsp;</span>
+          </span>
+        </div>
+
+        <p class="text-gray-500 dark:text-gray-400 leading-relaxed mb-8 max-w-lg opacity-0 animate-fade-up-d2">
+          Membangun antarmuka web yang indah, cepat, dan mudah digunakan. Dengan pengalaman 2+ tahun, saya membantu bisnis mewujudkan ide digital mereka menjadi kenyataan.
+        </p>
+
+        <!-- CTA buttons -->
+        <div class="flex flex-wrap gap-3 opacity-0 animate-fade-up-d3">
+          <a href="#portfolio" class="flex items-center gap-2 bg-mint-500 hover:bg-mint-600 text-white font-bold px-6 py-3 rounded-xl shadow-lg shadow-mint-500/30 hover:shadow-mint-500/50 transition-all hover:-translate-y-0.5">
+            <i class="fa-solid fa-eye"></i> Lihat Portfolio
+          </a>
+          <a href="#contact" class="flex items-center gap-2 bg-white dark:bg-gray-900 hover:bg-mint-50 dark:hover:bg-gray-800 text-gray-800 dark:text-gray-200 font-bold px-6 py-3 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-mint-400 transition-all hover:-translate-y-0.5">
+            <i class="fa-solid fa-envelope"></i> Hubungi Saya
+          </a>
+        </div>
+      </div>
+
+      <!-- Right: Avatar card -->
+      <div class="flex justify-center md:justify-end">
+        <div class="relative">
+          <!-- Avatar circle -->
+          <div class="relative w-72 h-72 md:w-80 md:h-80">
+            <div class="absolute inset-0 rounded-full bg-gradient-to-br from-mint-300 via-mint-400 to-mint-600 blur-xl opacity-40 dark:opacity-30 scale-105"></div>
+            <div class="relative w-full h-full rounded-full bg-gradient-to-br from-mint-100 to-mint-300 dark:from-mint-900 dark:to-mint-700 flex items-center justify-center border-4 border-white dark:border-gray-800 shadow-2xl overflow-hidden">
+              <!-- Placeholder avatar -->
+              <img src="marsel.jpg" alt="Marsel Yogi" class="w-full h-full object-cover object-top" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scroll indicator -->
+    <div class="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-gray-400 dark:text-gray-600 text-xs font-semibold">
+      <span class="tracking-widest uppercase">Scroll</span>
+      <i class="fa-solid fa-chevron-down animate-bounce"></i>
+    </div>
+  </section>
+
+  <!-- ░░ ABOUT ░░ -->
+  <section id="about" class="py-24 bg-gray-50 dark:bg-gray-900/50 transition-colors">
+    <div class="max-w-7xl mx-auto px-6 md:px-12">
+      <div class="grid md:grid-cols-2 gap-16 items-center">
+
+        <!-- Skills panel -->
+        <div x-data="{ visible: false }" x-intersect="visible = true" class="space-y-6">
+          <div class="inline-flex items-center gap-2 text-mint-600 dark:text-mint-400 text-xs font-bold uppercase tracking-widest mb-2">
+            <i class="fa-solid fa-code"></i> Tech Stack
+          </div>
+          <h2 class="text-4xl font-black tracking-tight mb-8">Keahlian Saya</h2>
+
+          <!-- Skill bars -->
+          <template x-for="s in [
+            {name:'HTML & CSS',        icon:'fa-brands fa-html5',    pct:95, color:'from-orange-400 to-orange-500'},
+            {name:'JavaScript / TS',   icon:'fa-brands fa-js',       pct:68, color:'from-yellow-400 to-yellow-500'},
+            {name:'Bootstrap',       icon:'fa-solid fa-border-style', pct:80, color:'from-purple-400 to-purple-600'},
+            {name:'Tailwind CSS',      icon:'fa-solid fa-wind',      pct:82, color:'from-mint-400 to-mint-600'},
+            {name:'PHP',     icon:'fa-brands fa-php',      pct:75, color:'from-blue-400 to-blue-600'},
+            {name:'MySQL',   icon:'fa-solid fa-database',  pct:85, color:'from-blue-400 to-blue-600'},
+          ]" :key="s.name">
+            <div>
+              <div class="flex items-center justify-between mb-2">
+                <span class="flex items-center gap-2 font-bold text-sm">
+                  <i :class="s.icon" class="text-base w-5 text-center"></i>
+                  <span x-text="s.name"></span>
+                </span>
+                <span x-text="s.pct + '%'" class="text-xs font-black text-mint-600 dark:text-mint-400"></span>
+              </div>
+              <div class="h-2 rounded-full bg-gray-200 dark:bg-gray-700 overflow-hidden">
+                <div class="h-full rounded-full bg-gradient-to-r skill-bar-inner"
+                     :class="s.color"
+                     :style="visible ? 'width:' + s.pct + '%' : 'width:0%'"></div>
+              </div>
+            </div>
+          </template>
+        </div>
+
+        <!-- Bio -->
+        <div>
+          <div class="inline-flex items-center gap-2 text-mint-600 dark:text-mint-400 text-xs font-bold uppercase tracking-widest mb-4">
+            <i class="fa-solid fa-id-card"></i> About Me
+          </div>
+          <h2 class="text-4xl font-black tracking-tight mb-6">Tentang Marsel<span class="text-mint-500">.</span></h2>
+          <p class="text-gray-500 dark:text-gray-400 leading-relaxed mb-4">
+            Halo! Nama saya <strong class="text-gray-800 dark:text-gray-100">Marsel Yogi</strong>, seorang Web Developer penuh semangat dari Indonesia. Saya memiliki passion dalam menciptakan produk digital yang tidak hanya fungsional, tetapi juga indah secara visual.
+          </p>
+          <p class="text-gray-500 dark:text-gray-400 leading-relaxed mb-8">
+            Dengan lebih dari 2 tahun pengalaman, saya telah bekerja di berbagai proyek mulai dari landing page bisnis kecil hingga platform SaaS skala besar. Saya percaya bahwa kode yang baik adalah kode yang dapat dibaca, dipelihara, dan performant.
+          </p>
+
+          <!-- Info grid -->
+          <div class="grid grid-cols-2 gap-4 mb-8">
+            <div class="bg-white dark:bg-gray-800 rounded-2xl p-4 border border-gray-100 dark:border-gray-700">
+              <i class="fa-solid fa-location-dot text-mint-500 mb-2"></i>
+              <div class="text-xs text-gray-400 font-semibold uppercase tracking-wider">Lokasi</div>
+              <div class="font-bold text-sm mt-0.5">Topo, Nabire, Papua</div>
+            </div>
+            <div class="bg-white dark:bg-gray-800 rounded-2xl p-4 border border-gray-100 dark:border-gray-700">
+              <i class="fa-solid fa-graduation-cap text-mint-500 mb-2"></i>
+              <div class="text-xs text-gray-400 font-semibold uppercase tracking-wider">Pendidikan</div>
+              <div class="font-bold text-sm mt-0.5">IT</div>
+            </div>
+            <div class="bg-white dark:bg-gray-800 rounded-2xl p-4 border border-gray-100 dark:border-gray-700">
+              <i class="fa-solid fa-language text-mint-500 mb-2"></i>
+              <div class="text-xs text-gray-400 font-semibold uppercase tracking-wider">Bahasa</div>
+              <div class="font-bold text-sm mt-0.5">Indonesia</div>
+            </div>
+            <div class="bg-white dark:bg-gray-800 rounded-2xl p-4 border border-gray-100 dark:border-gray-700">
+              <i class="fa-solid fa-mug-hot text-mint-500 mb-2"></i>
+              <div class="text-xs text-gray-400 font-semibold uppercase tracking-wider">Hobi</div>
+              <div class="font-bold text-sm mt-0.5">Trip Adventure & Football</div>
+            </div>
+          </div>
+
+          <!-- Download CV -->
+          <a href="#" class="inline-flex items-center gap-2 bg-mint-500 hover:bg-mint-600 text-white font-bold px-6 py-3 rounded-xl shadow-lg shadow-mint-500/25 hover:shadow-mint-500/40 transition-all hover:-translate-y-0.5">
+            <i class="fa-solid fa-file-arrow-down"></i> Download CV
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ░░ PORTFOLIO ░░ -->
+  <section id="portfolio" class="py-24 relative overflow-hidden">
+    <div class="absolute inset-0 dot-grid opacity-40 dark:opacity-20"></div>
+    <div class="relative z-10 max-w-7xl mx-auto px-6 md:px-12">
+
+      <!-- Header -->
+      <div class="text-center mb-14">
+        <div class="inline-flex items-center gap-2 text-mint-600 dark:text-mint-400 text-xs font-bold uppercase tracking-widest mb-4">
+          <i class="fa-solid fa-briefcase"></i> My Work
+        </div>
+        <h2 class="text-4xl md:text-5xl font-black tracking-tight">Portfolio<span class="text-mint-500">.</span></h2>
+        <p class="text-gray-500 dark:text-gray-400 mt-4 max-w-xl mx-auto">Beberapa proyek terbaik yang telah saya kerjakan. Setiap proyek adalah cerita tersendiri.</p>
+      </div>
+
+      <!-- Filter tabs -->
+      <div x-data="{ active: 'all' }" class="w-full">
+        <div class="flex flex-wrap justify-center gap-2 mb-10">
+          <template x-for="tab in [{k:'all',label:'Semua'},{k:'web',label:'Web App'},{k:'landing',label:'Landing Page'},{k:'mobile',label:'Mobile UI'}]" :key="tab.k">
+            <button @click="active = tab.k"
+                    :class="active === tab.k ? 'bg-mint-500 text-white shadow-lg shadow-mint-500/30' : 'bg-white dark:bg-gray-900 text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-700 hover:border-mint-400'"
+                    class="flex items-center gap-2 px-5 py-2 rounded-xl font-bold text-sm transition-all">
+              <i class="fa-solid fa-filter text-xs"></i>
+              <span x-text="tab.label"></span>
+            </button>
+          </template>
+        </div>
+
+        <!-- Cards grid -->
+        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <template x-for="p in [
+            {cat:'web',    title:'Gerbang Cendrawasih',       desc:'Platform media berita di papua tengah.',  tags:['CMS','Wordpress','Mysql'], image:'img/portfolio-18.png',  color:'from-cyan-400 to-blue-500',    link:'https://gerbangcenderawasih.com/'},
+            {cat:'web',    title:'Arsip PSW YPPK Nabire', desc:'Website berbasis aplikasi arsip surat',   tags:['Php','Bootstrap','MySQL'],  image:'img/portfolio-16.png',      color:'from-violet-400 to-purple-600', link:'#'},
+            {cat:'landing',title:'Web Portfolio',     desc:'Website portfolio.',     tags:['html','Tailwind','javascript'],         image:'img/portfolio-20.png',     color:'from-rose-400 to-red-500',      link:'#'},
+          ].filter(p => active === 'all' || p.cat === active)" :key="p.title">
+            <div class="portfolio-card bg-white dark:bg-gray-900 rounded-2xl overflow-hidden border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-2xl hover:shadow-mint-500/10 transition-all group">
+              <!-- Thumb -->
+              <div class="relative h-48 overflow-hidden bg-gray-100 dark:bg-gray-800">
+                <!-- Gradient fallback background -->
+                <div class="absolute inset-0 bg-gradient-to-br" :class="'bg-gradient-to-br ' + p.color"></div>
+                <!-- Project image -->
+                <img :src="p.image" :alt="p.title"
+                     class="absolute inset-0 w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500"
+                     onerror="this.style.display='none'" />
+                <!-- Overlay on hover -->
+                <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
+                  <a :href="p.link" class="w-10 h-10 rounded-full bg-white/90 flex items-center justify-center text-gray-800 hover:bg-mint-500 hover:text-white transition-all" title="Preview">
+                    <i class="fa-solid fa-eye text-sm"></i>
+                  </a>
+                </div>
+              </div>
+              <!-- Content -->
+              <div class="p-5">
+                <h3 class="font-black text-lg mb-2 group-hover:text-mint-600 dark:group-hover:text-mint-400 transition-colors" x-text="p.title"></h3>
+                <p class="text-gray-500 dark:text-gray-400 text-sm leading-relaxed mb-4" x-text="p.desc"></p>
+                <div class="flex flex-wrap gap-1.5">
+                  <template x-for="t in p.tags" :key="t">
+                    <span class="tag bg-mint-50 dark:bg-mint-900/30 text-mint-700 dark:text-mint-400 border border-mint-200 dark:border-mint-800" x-text="t"></span>
+                  </template>
+                </div>
+              </div>
+            </div>
+          </template>
+        </div>
+      </div>
+
+      <!-- View all
+      <div class="text-center mt-12">
+        <a href="https://github.com/marselinoyogi" target="_blank"
+           class="inline-flex items-center gap-2 bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 font-bold px-8 py-3.5 rounded-xl hover:bg-gray-700 dark:hover:bg-white transition-all shadow-lg hover:-translate-y-0.5">
+          <i class="fa-brands fa-github text-lg"></i> Lihat Semua di GitHub
+        </a>
+      </div>
+    -->
+    </div>
+  </section>
+
+  <!-- ░░ SERVICES ░░ -->
+  <section class="py-20 bg-gray-50 dark:bg-gray-900/50 transition-colors">
+    <div class="max-w-7xl mx-auto px-6 md:px-12">
+      <div class="text-center mb-14">
+        <div class="inline-flex items-center gap-2 text-mint-600 dark:text-mint-400 text-xs font-bold uppercase tracking-widest mb-4">
+          <i class="fa-solid fa-screwdriver-wrench"></i> Services
+        </div>
+        <h2 class="text-4xl font-black tracking-tight">Yang Saya Tawarkan<span class="text-mint-500">.</span></h2>
+      </div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <template x-data x-for="svc in [
+          {icon:'fa-laptop-code',   title:'Web Development',  desc:'Membangun website modern, cepat, dan responsif sesuai kebutuhan bisnis Anda.'},
+          {icon:'fa-palette',       title:'UI/UX Design',      desc:'Desain antarmuka yang intuitif, estetis, dan user-friendly untuk produk digital.'},
+          {icon:'fa-mobile-screen', title:'Responsive Design', desc:'Memastikan website tampil sempurna di semua perangkat — desktop, tablet, dan mobile.'},
+          {icon:'fa-rocket',        title:'Performance Optim.',desc:'Optimasi kecepatan dan performa website untuk pengalaman pengguna terbaik.'},
+        ]" :key="svc.title">
+          <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-100 dark:border-gray-700 hover:border-mint-400 dark:hover:border-mint-600 transition-all hover:-translate-y-1 hover:shadow-xl hover:shadow-mint-500/10 group">
+            <div class="w-12 h-12 rounded-2xl bg-mint-50 dark:bg-mint-900/30 flex items-center justify-center mb-4 group-hover:bg-mint-500 transition-colors">
+              <i :class="'fa-solid ' + svc.icon" class="text-mint-600 dark:text-mint-400 group-hover:text-white transition-colors text-xl"></i>
+            </div>
+            <h3 class="font-black mb-2" x-text="svc.title"></h3>
+            <p class="text-sm text-gray-500 dark:text-gray-400 leading-relaxed" x-text="svc.desc"></p>
+          </div>
+        </template>
+      </div>
+    </div>
+  </section>
+
+  <!-- ░░ CONTACT ░░ -->
+  <section id="contact" class="py-24 bg-gray-50 dark:bg-gray-900/50 transition-colors relative overflow-hidden">
+    <div class="absolute inset-0 mesh-bg"></div>
+    <div class="relative z-10 max-w-6xl mx-auto px-6 md:px-12">
+      <div class="text-center mb-14">
+        <div class="inline-flex items-center gap-2 text-mint-600 dark:text-mint-400 text-xs font-bold uppercase tracking-widest mb-4">
+          <i class="fa-solid fa-paper-plane"></i> Contact
+        </div>
+        <h2 class="text-4xl md:text-5xl font-black tracking-tight">Mari Bekerja Sama<span class="text-mint-500">.</span></h2>
+        <p class="text-gray-500 dark:text-gray-400 mt-4 max-w-xl mx-auto">Punya proyek menarik? Saya siap membantu mewujudkan visi digital Anda.</p>
+      </div>
+
+      <div class="grid md:grid-cols-5 gap-8">
+        <!-- Contact info -->
+        <div class="md:col-span-2 space-y-4">
+          <template x-data x-for="c in [
+            {icon:'fa-envelope',   label:'Email',    val:'mariothen3@gmail.com',  href:'mailto:mariothen3@gmail.com'},
+            {icon:'fa-phone',      label:'WhatsApp', val:'+62 852-4526-4720',   href:'https://wa.me/6285245264720'},
+            {icon:'fa-location-dot',label:'Lokasi',  val:'Nabire, Papua',  href:'#'},
+          ]" :key="c.label">
+            <a :href="c.href" target="_blank" class="flex items-center gap-4 bg-white dark:bg-gray-900 rounded-2xl p-4 border border-gray-100 dark:border-gray-800 hover:border-mint-400 dark:hover:border-mint-600 transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-mint-500/10 group">
+              <div class="w-11 h-11 rounded-xl bg-mint-50 dark:bg-mint-900/30 flex items-center justify-center group-hover:bg-mint-500 transition-colors flex-shrink-0">
+                <i :class="'fa-solid ' + c.icon" class="text-mint-600 dark:text-mint-400 group-hover:text-white transition-colors"></i>
+              </div>
+              <div>
+                <div class="text-xs text-gray-400 font-semibold uppercase tracking-wider" x-text="c.label"></div>
+                <div class="font-bold text-sm mt-0.5" x-text="c.val"></div>
+              </div>
+            </a>
+          </template>
+
+          <!-- Social links -->
+          <div class="bg-white dark:bg-gray-900 rounded-2xl p-4 border border-gray-100 dark:border-gray-800">
+            <div class="text-xs text-gray-400 font-semibold uppercase tracking-wider mb-3">Follow Me</div>
+            <div class="flex gap-2">
+              <template x-data x-for="s in [
+                {icon:'fa-brands fa-github',   href:'https://github.com/marselyogi',    bg:'hover:bg-gray-800 hover:text-white'},
+                {icon:'fa-brands fa-linkedin', href:'https://linkedin.com/in/marselyogi', bg:'hover:bg-blue-600 hover:text-white'},
+                {icon:'fa-brands fa-instagram',href:'https://instagram.com/marcel_yogi',  bg:'hover:bg-pink-600 hover:text-white'},
+              ]" :key="s.href">
+                <a :href="s.href" target="_blank"
+                   :class="s.bg"
+                   class="w-10 h-10 rounded-xl border border-gray-200 dark:border-gray-700 flex items-center justify-center text-gray-500 dark:text-gray-400 transition-all hover:-translate-y-0.5">
+                  <i :class="s.icon"></i>
+                </a>
+              </template>
+            </div>
+          </div>
+        </div>
+
+        <!-- Form -->
+        <div class="md:col-span-3 bg-white dark:bg-gray-900 rounded-2xl p-8 border border-gray-100 dark:border-gray-800 shadow-sm"
+             x-data="{ sent: false, name:'', email:'', subj:'', msg:'',
+               submit() { if(this.name && this.email && this.msg){ this.sent = true; setTimeout(()=>{ this.sent=false; this.name=''; this.email=''; this.subj=''; this.msg=''; },4000); } }
+             }">
+          <div x-show="!sent" x-transition class="space-y-4">
+            <div class="grid sm:grid-cols-2 gap-4">
+              <div>
+                <label class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5 block"><i class="fa-solid fa-user mr-1 text-mint-500"></i>Nama</label>
+                <input x-model="name" type="text" placeholder="Nama lengkap Anda"
+                       class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-mint-400 focus:border-transparent transition-all placeholder-gray-400 dark:placeholder-gray-600" />
+              </div>
+              <div>
+                <label class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5 block"><i class="fa-solid fa-envelope mr-1 text-mint-500"></i>Email</label>
+                <input x-model="email" type="email" placeholder="email@anda.com"
+                       class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-mint-400 focus:border-transparent transition-all placeholder-gray-400 dark:placeholder-gray-600" />
+              </div>
+            </div>
+            <div>
+              <label class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5 block"><i class="fa-solid fa-tag mr-1 text-mint-500"></i>Subjek</label>
+              <input x-model="subj" type="text" placeholder="Topik pesan Anda"
+                     class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-mint-400 focus:border-transparent transition-all placeholder-gray-400 dark:placeholder-gray-600" />
+            </div>
+            <div>
+              <label class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5 block"><i class="fa-solid fa-comment-dots mr-1 text-mint-500"></i>Pesan</label>
+              <textarea x-model="msg" rows="5" placeholder="Ceritakan proyek atau pertanyaan Anda..."
+                        class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-mint-400 focus:border-transparent transition-all resize-none placeholder-gray-400 dark:placeholder-gray-600"></textarea>
+            </div>
+            <button @click="submit()"
+                    class="w-full flex items-center justify-center gap-2 bg-mint-500 hover:bg-mint-600 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-mint-500/25 hover:shadow-mint-500/40 transition-all hover:-translate-y-0.5 active:translate-y-0">
+              <i class="fa-solid fa-paper-plane"></i> Kirim Pesan
+            </button>
+          </div>
+          <div x-show="sent" x-transition class="flex flex-col items-center justify-center py-16 text-center">
+            <div class="w-20 h-20 rounded-full bg-mint-100 dark:bg-mint-900/40 flex items-center justify-center mb-4">
+              <i class="fa-solid fa-circle-check text-mint-500 text-4xl"></i>
+            </div>
+            <h3 class="text-2xl font-black mb-2">Pesan Terkirim!</h3>
+            <p class="text-gray-500 dark:text-gray-400 text-sm">Terima kasih telah menghubungi saya. Saya akan membalas secepatnya.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ░░ FOOTER ░░ -->
+  <footer class="bg-gray-900 dark:bg-gray-950 text-white py-10 px-6 md:px-12">
+    <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+      <div class="flex items-center gap-2">
+        <span class="w-8 h-8 rounded-lg bg-mint-500 flex items-center justify-center shadow-lg">
+          <span class="font-black text-white text-base leading-none">M</span>
+        </span>
+        <span class="font-extrabold">Marsel<span class="text-mint-400"></span></span>
+      </div>
+      <p class="text-gray-500 text-sm text-center">
+        © 2026 Marsel Yogi. Dibuat dengan <i class="fa-solid fa-heart text-red-500 mx-1"></i> dan di Nabire.
+      </p>
+      <div class="flex gap-3">
+        <a href="https://github.com/marselyogi" target="_blank" class="w-9 h-9 rounded-xl bg-gray-800 hover:bg-mint-500 flex items-center justify-center text-gray-400 hover:text-white transition-all hover:-translate-y-0.5">
+          <i class="fa-brands fa-github text-sm"></i>
+        </a>
+        <a href="https://linkedin.com/in/marselyogi" target="_blank" class="w-9 h-9 rounded-xl bg-gray-800 hover:bg-blue-600 flex items-center justify-center text-gray-400 hover:text-white transition-all hover:-translate-y-0.5">
+          <i class="fa-brands fa-linkedin text-sm"></i>
+        </a>
+        <a href="https://wa.me/6281234567890" target="_blank" class="w-9 h-9 rounded-xl bg-gray-800 hover:bg-green-500 flex items-center justify-center text-gray-400 hover:text-white transition-all hover:-translate-y-0.5">
+          <i class="fa-brands fa-whatsapp text-sm"></i>
+        </a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ░░ FLOATING BUTTONS (bottom-right) ░░ -->
+  <div class="fixed bottom-6 right-6 flex flex-col items-center gap-3 z-50">
+
+    <!-- GitHub -->
+    <a href="https://github.com/marselyogi" target="_blank"
+       class="group relative w-12 h-12 rounded-2xl bg-gray-900 dark:bg-gray-800 hover:bg-gray-700 text-white shadow-xl shadow-gray-900/30 flex items-center justify-center transition-all hover:-translate-y-1 hover:shadow-2xl">
+      <i class="fa-brands fa-github text-lg"></i>
+      <span class="absolute right-14 bg-gray-900 text-white text-xs font-bold px-3 py-1.5 rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">GitHub</span>
+    </a>
+
+    <!-- WhatsApp -->
+    <a href="https://wa.me/6281234567890" target="_blank"
+       class="group relative w-12 h-12 rounded-2xl bg-green-500 hover:bg-green-600 text-white shadow-xl shadow-green-500/40 flex items-center justify-center transition-all hover:-translate-y-1 hover:shadow-2xl">
+      <i class="fa-brands fa-whatsapp text-xl"></i>
+      <span class="absolute inset-0 rounded-2xl border-2 border-green-400 animate-ping opacity-40"></span>
+      <span class="absolute right-14 bg-green-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">Chat di WhatsApp</span>
+    </a>
+
+    <!-- Back to Top -->
+    <button onclick="window.scrollTo({top:0,behavior:'smooth'})"
+            class="group relative w-12 h-12 rounded-2xl bg-mint-500 hover:bg-mint-600 text-white shadow-xl shadow-mint-500/40 flex items-center justify-center transition-all hover:-translate-y-1 hover:shadow-2xl">
+      <i class="fa-solid fa-chevron-up text-sm font-black"></i>
+      <span class="absolute right-14 bg-mint-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg whitespace-nowrap o
